@@ -48,22 +48,23 @@ session = Session()
 # session.add_all([sale1, sale2, sale3])
 # session.commit()
 
+def get_shops(p):
+    q = session.query(Book.title, Shop.name, Sale.price, Sale.date_sale,
+).select_from(Shop).join(Stock).join(Book).join(Publisher).join(Sale)
+    if p.isdigit():
+        publisher = session.query(Publisher).filter(Publisher.id == int(p)).first()
+    else:
+        publisher = session.query(Publisher).filter(Publisher.name == p).first()
 
-# запросы
-p = input()
-if p.isdigit():
-    publisher = session.query(Publisher).filter(Publisher.id == int(p)).first()
-else:
-    publisher = session.query(Publisher).filter(Publisher.name == p).first()
+    if publisher:
+        for book_title, shop_name, price, date_sale in q.filter(Publisher.id == publisher.id):
+            print(f"{book_title: <40} | {shop_name: <10} | {price: <8} | {date_sale.strftime('%d-%m-%Y')}")
+    else:
+        print("Нет такого издательства")
+if __name__ == '__main__':
+    pub = input("Введите название или идентификатор издательства: ")
+    get_shops(pub)
 
-books = session.query(Book).filter(Book.id_publisher == publisher.id).all()
-for book in books:
-    stocks = session.query(Stock).filter(Stock.id_book == book.id).all()
-    for stock in stocks:
-        shop = session.query(Shop).filter(Shop.id == stock.id_shop).first()
-        sales = session.query(Sale).filter(Sale.id_stock == stock.id).all()
-        for sale in sales:
-            print(f"{format(book.title, '17')} | {format(shop.name, '11')} | {format(sale.price, '6.2f')} | {sale.date_sale}")
 
 # session.query(Sale).delete()
 # session.query(Stock).delete()

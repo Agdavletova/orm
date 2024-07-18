@@ -18,8 +18,6 @@ class Publisher(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     name = sq.Column(sq.String(length=40), unique=True)
 
-
-
 class Shop(Base):
     __tablename__ = "shop"
 
